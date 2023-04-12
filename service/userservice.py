@@ -1,11 +1,13 @@
 from models.users import User_table
 from werkzeug.security import generate_password_hash
-from sqlalchemy.orm import Session
-from schemas.userschema import userCreateSchema
 from sqlalchemy import insert, select
 
 
-def create_user(db: Session, upload: userCreateSchema):
+def create_user(db, upload):
+    if not db.execute(select(User_table.c.id).where(User_table.c.username == upload.username)):
+        return "user with this username already exist"
+    if not db.execute(select(User_table.c.id).where(User_table.c.email == upload.email)):
+        return "user with this email already exist"
     comm = insert(User_table).values(
         username=upload.username,
         email=upload.email,
@@ -21,9 +23,33 @@ def create_user(db: Session, upload: userCreateSchema):
     return user_id
 
 def get_by_id (db, upload):
-    print(upload.id, type(upload.id))
     user_username = db.execute(
         select(User_table.c.username).where(User_table.c.id == upload.id)
     ).scalar()
+    if user_username:
+        return user_username
+    else:
+        return None
 
-    return user_username
+
+def update_by_id(db, upload):
+    if db.execute(select(User_table.c.username).where(User_table.c.id == upload.id)):
+        if (upload.username and upload.email):
+            query = db.execute(User_table.update()
+                               .where(User_table.c.id == upload.id)
+                               .values(username=upload.username, email=upload.email)
+                               )
+        elif upload.username:
+            query = db.execute(User_table.update()
+                               .where(User_table.c.id == upload.id)
+                               .values(username=upload.username)
+                               )
+        elif upload.email:
+            query = db.execute(User_table.update()
+                               .where(User_table.c.id == upload.id)
+                               .values(email=upload.email)
+                               )
+        db.commit()
+        return 'good'
+    else:
+        return 'Id not found'

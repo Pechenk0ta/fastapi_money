@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-
+from typing import Union
 
 class userCreateSchema(BaseModel):
     username: str
@@ -8,3 +8,10 @@ class userCreateSchema(BaseModel):
 
 class userByIdSchema(BaseModel):
     id: int
+
+
+class userChangeData(BaseModel):
+    id : int
+    username : Union[str, None]
+    email : Union[str, None]
+
