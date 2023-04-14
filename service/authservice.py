@@ -1,6 +1,6 @@
 from werkzeug.security import generate_password_hash
 from sqlalchemy import select
-from models.users import User_table
+from models.models import User_table
 
 def login_in(db, upload, Authorize):
     if db.execute(select(User_table).where(

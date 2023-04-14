@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, Request
 from fastapi.responses import JSONResponse
 from config import DB_USER, DB_PASS, DB_NAME, DB_HOST
-from sqlalchemy import create_engine, MetaData
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from service.userservice import create_user, get_by_id, update_by_id
 from schemas.userschema import userCreateSchema, userByIdSchema, userChangeData
@@ -70,9 +70,9 @@ async def login(upload: userLogin,
                 ):
     return login_in(db, upload, Authorize)
 
+
 @app.get('/check_jwt')
 async def qwe(Authorize: AuthJWT = Depends()):
     Authorize.jwt_required()
     current_user = Authorize.get_jwt_subject()
     return {"user": current_user}
-

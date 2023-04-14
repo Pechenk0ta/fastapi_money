@@ -1,4 +1,4 @@
-from models.users import User_table
+from models.models import User_table
 from werkzeug.security import generate_password_hash
 from sqlalchemy import insert, select
 
@@ -21,6 +21,7 @@ def create_user(db, upload):
     ).scalar()
 
     return user_id
+
 
 def get_by_id (db, upload):
     user_username = db.execute(
