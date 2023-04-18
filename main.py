@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends, Request
 from fastapi.responses import JSONResponse
 from config import DB_USER, DB_PASS, DB_NAME, DB_HOST
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, insert
 from sqlalchemy.orm import sessionmaker, Session
 from service.userservice import create_user, get_by_id, update_by_id
 from schemas.userschema import userCreateSchema, userByIdSchema, userChangeData
@@ -10,6 +10,9 @@ from schemas.jwt_settings import Settings
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from schemas.authschema import userLogin
 from service.authservice import login_in
+from schemas.taskschema import moneycreateschema, money_changes
+from service.taskservice import create_money, get_balance, get_balance_by_days
+from models.models import category_table
 
 SQLALCHEMY_DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}"
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
@@ -71,8 +74,39 @@ async def login(upload: userLogin,
     return login_in(db, upload, Authorize)
 
 
-@app.get('/check_jwt')
-async def qwe(Authorize: AuthJWT = Depends()):
-    Authorize.jwt_required()
+@app.post('/refresh')
+def refresh(Authorize: AuthJWT = Depends()):
+    Authorize.jwt_refresh_token_required()
     current_user = Authorize.get_jwt_subject()
-    return {"user": current_user}
+    new_access_token = Authorize.create_access_token(subject=current_user)
+    Authorize.set_access_cookies(new_access_token)
+    return {"msg": "The token has been refresh"}
+
+
+@app.delete('/logout')
+def logout(Authorize: AuthJWT = Depends()):
+    Authorize.jwt_required()
+    Authorize.unset_jwt_cookies()
+    return {"msg":"Successfully logout"}
+
+
+@app.post('/create_task')
+async def create_money_tx(upload: moneycreateschema,
+                Authorize: AuthJWT = Depends(),
+                db: Session = Depends(get_db)):
+    return create_money(db, upload, Authorize)
+
+
+@app.get('/balance')
+async def balance(Authorize: AuthJWT = Depends(),
+                db: Session = Depends(get_db)):
+    return get_balance(db, Authorize)
+
+
+@app.post('/money_changes_perday')
+async def change(upload: money_changes,
+                Authorize: AuthJWT = Depends(),
+                db: Session = Depends(get_db)
+                ):
+    return get_balance_by_days(db, Authorize, upload)
+
