@@ -10,9 +10,9 @@ from schemas.jwt_settings import Settings
 from fastapi_jwt_auth.exceptions import AuthJWTException
 from schemas.authschema import userLogin
 from service.authservice import login_in
-from schemas.taskschema import moneycreateschema, money_changes
-from service.taskservice import create_money, get_balance, get_balance_by_days
-from models.models import category_table
+from schemas.taskschema import moneycreateschema, money_changes, filterschema
+from service.taskservice import create_money, get_balance, get_balance_by_days, filter
+
 
 SQLALCHEMY_DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}"
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
@@ -110,3 +110,10 @@ async def change(upload: money_changes,
                 ):
     return get_balance_by_days(db, Authorize, upload)
 
+
+@app.post('/filters')
+async def filters(upload: filterschema,
+                Authorize: AuthJWT = Depends(),
+                db: Session = Depends(get_db)
+                ):
+    return filter(db=db, Authorize=Authorize, upload=upload)

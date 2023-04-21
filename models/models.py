@@ -20,7 +20,6 @@ trx_type_table = Table(
     metadata,
     Column('id', Integer, primary_key=True),
     Column('type', String, nullable=False, unique=True),
-    Column('category', Integer, ForeignKey('category.id'))
 )
 
 
@@ -32,7 +31,8 @@ money_tx = Table(
     Column('value', Integer, nullable=False),
     Column('description', String, nullable=True),
     Column('date', TIMESTAMP, default=datetime.datetime.utcnow),
-    Column('person', Integer, ForeignKey('Users.id'))
+    Column('person', Integer, ForeignKey('Users.id')),
+    Column('category', Integer, ForeignKey('category.id'))
 )
 
 

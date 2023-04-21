@@ -4,7 +4,7 @@ from sqlalchemy import insert, select
 
 
 def create_user(db, upload):
-    if not db.execute(select(User_table.c.id).where(User_table.c.username == upload.username)):
+    if db.execute(select(User_table.c.id).where(User_table.c.username == upload.username)):
         return "user with this username already exist"
     if not db.execute(select(User_table.c.id).where(User_table.c.email == upload.email)):
         return "user with this email already exist"
@@ -27,10 +27,11 @@ def get_by_id (db, upload):
     user_username = db.execute(
         select(User_table.c.username).where(User_table.c.id == upload.id)
     ).scalar()
+
     if user_username:
         return user_username
-    else:
-        return None
+
+    return None
 
 
 def update_by_id(db, upload):
