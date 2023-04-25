@@ -12,7 +12,8 @@ from schemas.authschema import userLogin
 from service.authservice import login_in
 from schemas.taskschema import moneycreateschema, money_changes, filterschema
 from service.taskservice import create_money, get_balance, get_balance_by_days, filter
-
+from service.templateservice import create_temaplate, check_templates
+from schemas.templateschema import templateschema
 
 SQLALCHEMY_DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}/{DB_NAME}"
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
@@ -117,3 +118,18 @@ async def filters(upload: filterschema,
                 db: Session = Depends(get_db)
                 ):
     return filter(db=db, Authorize=Authorize, upload=upload)
+
+
+
+@app.post('/create_template')
+async def make_template_view(upload:templateschema,
+                             Authorize: AuthJWT = Depends(),
+                             db: Session = Depends(get_db)
+                             ):
+    return create_temaplate(db=db, Authorize=Authorize, upload=upload)
+
+@app.get('/templates')
+async def chech_templates_view(Authorize: AuthJWT = Depends(),
+                             db: Session = Depends(get_db)
+                             ):
+    return check_templates(Authorize, db)

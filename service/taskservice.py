@@ -1,5 +1,5 @@
 from models.models import money_tx, User_table, trx_type_table, category_table
-from sqlalchemy import select, insert, and_, desc, asc, join
+from sqlalchemy import select, insert, and_
 from sqlalchemy.sql import functions
 import datetime
 
@@ -41,7 +41,7 @@ def get_balance(db, Authorize):
         .where((money_tx.c.type == 2) & (money_tx.c.person == user_id))
         ).scalar()
     print(db.execute(
-        select(money_tx.c.value, money_tx.c.description).join()
+        select(money_tx.c.value, money_tx.c.description)
         .where(money_tx.c.person == user_id)
         ).fetchall())
 
